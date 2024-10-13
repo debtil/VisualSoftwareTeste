@@ -1,37 +1,53 @@
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging;
 
 class BancoDeDados
 {
     private const string connectionString = "Data Source=noticias.db";
+    private static ILogger _logger;
+
+    public BancoDeDados(ILogger logger)
+    {
+        _logger = logger;
+    }
 
     public static void CriarBancoETabela(){
         using (var connection = new SqliteConnection(connectionString))
         {
             connection.Open();
+            _logger.LogInformation("Conexão com o banco de dados aberta.");
 
-            // Criar a tabela de notícias se não existir
-            var createTableNoticia = connection.CreateCommand();
-            createTableNoticia.CommandText = @"
-                CREATE TABLE IF NOT EXISTS Noticias (
-                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Tipo TEXT,
-                    Titulo TEXT NOT NULL,
-                    Introducao TEXT NOT NULL,
-                    DataPublicacao TEXT NOT NULL,
-                    Link TEXT NOT NULL,
-                    NoticiaId TEXT UNIQUE
-                )";
-            createTableNoticia.ExecuteNonQuery();
+            try{
+                // Criar a tabela de notícias se não existir
+                var createTableNoticia = connection.CreateCommand();
+                createTableNoticia.CommandText = @"
+                    CREATE TABLE IF NOT EXISTS Noticias (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Tipo TEXT,
+                        Titulo TEXT NOT NULL,
+                        Introducao TEXT NOT NULL,
+                        DataPublicacao TEXT NOT NULL,
+                        Link TEXT NOT NULL,
+                        NoticiaId TEXT UNIQUE
+                    )";
+                createTableNoticia.ExecuteNonQuery();
+                _logger.LogInformation("Tabela 'Noticias' criada com sucesso.");
 
-            var createTableClimaCmd = connection.CreateCommand();
-            createTableClimaCmd.CommandText = @"
-                CREATE TABLE IF NOT EXISTS Clima (
-                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Pais TEXT NOT NULL,
-                    Data TEXT NOT NULL,
-                    Descricao TEXT NOT NULL
-                )";
-            createTableClimaCmd.ExecuteNonQuery();
+                var createTableClimaCmd = connection.CreateCommand();
+                createTableClimaCmd.CommandText = @"
+                    CREATE TABLE IF NOT EXISTS Clima (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Pais TEXT NOT NULL,
+                        Data TEXT NOT NULL,
+                        Descricao TEXT NOT NULL
+                    )";
+                createTableClimaCmd.ExecuteNonQuery();
+                _logger.LogInformation("Tabela 'Clima' criada com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao criar tabelas no banco de dados.");
+            }
         }
     }
 
@@ -40,6 +56,8 @@ class BancoDeDados
         using (var connection = new SqliteConnection(connectionString))
         {
             connection.Open();
+            _logger.LogInformation($"Consultando se notícia já existe no banco: {noticiaId}");
+
             var select = connection.CreateCommand();
             select.CommandText = @"
                 SELECT COUNT(1)
@@ -71,10 +89,11 @@ class BancoDeDados
                 insert.Parameters.AddWithValue("$dataPublicacao", dataPublicacao);
                 insert.Parameters.AddWithValue("$link", link);
                 insert.ExecuteNonQuery();
+                _logger.LogInformation($"Notícia '{titulo}' inserida com sucesso.");
             }
             else
             {
-                Console.WriteLine("A notícia já existe no banco de dados.");
+                _logger.LogInformation($"Notícia já existente no banco de dados: {noticiaId}");
             }
         }
     }
@@ -83,6 +102,7 @@ class BancoDeDados
         using (var connection = new SqliteConnection(connectionString))
         {
             connection.Open();
+            _logger.LogInformation($"Consultando se a data já existe no banco: {data}");
             var select = connection.CreateCommand();
             select.CommandText = @"
                 SELECT COUNT(1)
@@ -110,13 +130,12 @@ class BancoDeDados
                 insert.Parameters.AddWithValue("$date", data);
                 insert.Parameters.AddWithValue("$text", descricao);
                 insert.ExecuteNonQuery();
+                _logger.LogInformation($"Clima do dia '{data}' inserido com sucesso.");
             }
             else
             {
-                Console.WriteLine("Já existe um clima com esta data");
+                _logger.LogInformation($"Já existe um clima com esta data: {data}");
             }
         }
     }
-
-    
 }

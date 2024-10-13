@@ -10,18 +10,20 @@ public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
     private readonly HttpClient _httpClient;
+    private readonly BancoDeDados _bancoDeDados;
 
     public Worker(ILogger<Worker> logger)
     {
         _logger = logger;
         _httpClient = new HttpClient();
+        _bancoDeDados = new BancoDeDados(_logger);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         BancoDeDados.CriarBancoETabela();
-        //BancoDeDados.ApagarTabela();
         _logger.LogInformation("Banco e tabela criados com sucesso.");
+
         while (!stoppingToken.IsCancellationRequested)
         {
             try
@@ -44,7 +46,6 @@ public class Worker : BackgroundService
                 _logger.LogError(ex, "Erro ao chamar a API do ClimaTempo.");
             }
 
-            // FromMinutes(5)
             await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }
     }

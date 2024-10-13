@@ -24,7 +24,7 @@ class ConsultaClimatempo
 
                         BancoDeDados.InserirClima(pais, data, descricao);
                     }
-                    Console.WriteLine("Dados climáticos inseridos no banco de dados.");
+                    //Console.WriteLine("Dados climáticos inseridos no banco de dados.");
                 }
             }
             catch (HttpRequestException e)
