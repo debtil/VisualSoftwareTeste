@@ -2,4 +2,5 @@
 /obj
 /logs
 /publish
-noticias.db
+ApisData.db
+teste.cs

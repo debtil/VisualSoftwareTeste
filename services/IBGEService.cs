@@ -3,13 +3,13 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System;
 
-class ConsultaIBGE
+public class IBGEService
 {
-    public static async Task ConsultarIBGE()
+    public static async Task ConsultarIBGE(IIBGERepository ibgeRepository)
     {
-        using (HttpClient client = new HttpClient())
+        using (HttpClient client = ApiClientFactory.CreateIBGEClient())
         {
-            string response = await client.GetStringAsync("http://servicodados.ibge.gov.br/api/v3/noticias/");
+            string response = await client.GetStringAsync("/api/v3/noticias/");
 
             using (JsonDocument document = JsonDocument.Parse(response))
             {
@@ -18,7 +18,6 @@ class ConsultaIBGE
 
                 foreach (JsonElement item in items.EnumerateArray())
                 {
-                    // O Id da notícia pode ser String ou Number, então tratamos ambos os casos
                     string noticiaId;
                     if (item.GetProperty("id").ValueKind == JsonValueKind.String)
                     {
@@ -26,11 +25,11 @@ class ConsultaIBGE
                     }
                     else if (item.GetProperty("id").ValueKind == JsonValueKind.Number)
                     {
-                        noticiaId = item.GetProperty("id").GetInt32().ToString(); // Converte o número para string
+                        noticiaId = item.GetProperty("id").GetInt32().ToString();
                     }
                     else
                     {
-                        continue; // Se o tipo for outro, pula esse item
+                        continue;
                     }
 
                     string editorias = item.GetProperty("editorias").GetString();
@@ -43,7 +42,7 @@ class ConsultaIBGE
                         string dataPublicacao = item.GetProperty("data_publicacao").GetString();
                         string link = item.GetProperty("link").GetString();
 
-                        BancoDeDados.InserirNoticia(noticiaId, titulo, tipo, introducao, dataPublicacao, link);
+                        ibgeRepository.InserirNoticia(noticiaId, titulo, tipo, introducao, dataPublicacao, link);
                     }
                 }
             }

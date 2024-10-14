@@ -44,6 +44,13 @@ public class Program
             .ConfigureServices((hostContext, services) =>
             {
                 services.AddHostedService<Worker>();
+
+                services.AddSingleton<IIBGERepository, IBGERepository>();
+                services.AddSingleton<IClimatempoRepository, ClimatempoRepository>();
+
+                services.AddSingleton<IBGEService>();
+                services.AddSingleton<ClimatempoService>();
+                services.AddSingleton<BancoDeDadosService>();
             })
             .ConfigureLogging(logging =>
             {

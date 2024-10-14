@@ -9,50 +9,34 @@ using System.Threading.Tasks;
 public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
-    private readonly HttpClient _httpClient;
-    private readonly BancoDeDados _bancoDeDados;
+    private readonly IIBGERepository _ibgeRepository;
+    private readonly IClimatempoRepository _climaRepository;
+    private readonly BancoDeDadosService _bancoDeDadosService;
 
-    public Worker(ILogger<Worker> logger)
+    public Worker(ILogger<Worker> logger, BancoDeDadosService bancoDeDadosService, IIBGERepository ibgeRepository, IClimatempoRepository climaRepository)
     {
         _logger = logger;
-        _httpClient = new HttpClient();
-        _bancoDeDados = new BancoDeDados(_logger);
+        _bancoDeDadosService = bancoDeDadosService;
+        _ibgeRepository = ibgeRepository;
+        _climaRepository = climaRepository;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        BancoDeDados.CriarBancoETabela();
-        _logger.LogInformation("Banco e tabela criados com sucesso.");
+        _bancoDeDadosService.CriarBancoETabela();
 
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            try
-            {
-                await ConsultaIBGE.ConsultarIBGE();
-                _logger.LogInformation("Chamada à API IBGE realizada com sucesso.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao chamar a API IBGE.");
-            }
+       // while (!stoppingToken.IsCancellationRequested)
+        //{
+            _logger.LogInformation("Worker iniciado às: {time}", DateTimeOffset.Now);
 
-            try
-            {
-                await ConsultaClimatempo.ConsultarClimatempo();
-                _logger.LogInformation("Chamada à API do ClimaTempo realizada com sucesso.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao chamar a API do ClimaTempo.");
-            }
+            await IBGEService.ConsultarIBGE(_ibgeRepository);
+            await ClimatempoService.ConsultarClimatempo(_climaRepository);
 
-            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
-        }
-    }
+            _logger.LogInformation("Execução finalizada.");
+            _logger.LogInformation("Worker finalizado às: {time}", DateTimeOffset.Now);
 
-    public override Task StopAsync(CancellationToken stoppingToken)
-    {
-        _logger.LogInformation("Worker parando em: {time}", DateTimeOffset.Now);
-        return base.StopAsync(stoppingToken);
+            //await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+        //}
     }
 }
+
