@@ -16,6 +16,7 @@ public class Program
             Directory.CreateDirectory("logs");
         }
 
+        // Configuração do logger Serilog
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Information()
             .WriteTo.Console()                   
@@ -43,8 +44,10 @@ public class Program
             .UseWindowsService()
             .ConfigureServices((hostContext, services) =>
             {
+                // Adiciona o serviço de trabalho ao contêiner de serviços
                 services.AddHostedService<Worker>();
 
+                 // Registra as interfaces e suas implementações no contêiner de serviços
                 services.AddSingleton<IIBGERepository, IBGERepository>();
                 services.AddSingleton<IClimatempoRepository, ClimatempoRepository>();
 

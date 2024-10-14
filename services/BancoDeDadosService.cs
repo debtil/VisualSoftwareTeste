@@ -1,6 +1,7 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 
+//Serviço responsável por operações no banco de dados e integração com repositórios.
 public class BancoDeDadosService
 {
     private readonly ILogger<BancoDeDadosService> _logger;
@@ -23,6 +24,7 @@ public class BancoDeDadosService
 
             try
             {
+                // Criação da tabela "Noticias"
                 var createTableNoticia = connection.CreateCommand();
                 createTableNoticia.CommandText = @"
                     CREATE TABLE IF NOT EXISTS Noticias (
@@ -37,6 +39,7 @@ public class BancoDeDadosService
                 createTableNoticia.ExecuteNonQuery();
                 _logger.LogInformation("Tabela 'Noticias' criada com sucesso.");
 
+                // Criação da tabela "Clima"
                 var createTableClima = connection.CreateCommand();
                 createTableClima.CommandText = @"
                     CREATE TABLE IF NOT EXISTS Clima (

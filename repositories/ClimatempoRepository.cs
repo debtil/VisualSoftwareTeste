@@ -1,15 +1,18 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 
+//Repositório para realizar as operações da API do Climatempo
 public class ClimatempoRepository : IClimatempoRepository
 {
     private const string connectionString = "Data Source=ApisData.db";
     private readonly ILogger<ClimatempoRepository> _logger;
 
     public ClimatempoRepository(ILogger<ClimatempoRepository> logger){
+        //Verifica se o logger foi injetado corretamente
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    //Verifica se já existe uma entrada de clima para a data específica
     public bool DataClimaExiste(string data)
     {
         using (var connection = new SqliteConnection(connectionString))
@@ -22,11 +25,14 @@ public class ClimatempoRepository : IClimatempoRepository
                 FROM Clima 
                 WHERE Data = $date";
             select.Parameters.AddWithValue("$date", data);
+
+            //Executa a consulta e retorna o resultado
             long count = (long)select.ExecuteScalar();
             return count > 0;
         }
     }
 
+    //Insere uma nova entrada de clima no banco de dados, caso não tenha nada na data
     public void InserirClima(string pais, string data, string descricao)
     {
         using (var connection = new SqliteConnection(connectionString))

@@ -13,6 +13,7 @@ public class Worker : BackgroundService
     private readonly IClimatempoRepository _climaRepository;
     private readonly BancoDeDadosService _bancoDeDadosService;
 
+    //Constrututor que inicializa os serviços injetados
     public Worker(ILogger<Worker> logger, BancoDeDadosService bancoDeDadosService, IIBGERepository ibgeRepository, IClimatempoRepository climaRepository)
     {
         _logger = logger;
@@ -21,22 +22,22 @@ public class Worker : BackgroundService
         _climaRepository = climaRepository;
     }
 
+    //Método para a execução das consultas
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        //Cria o banco de dados e as tabelas, se ainda não existirem.
         _bancoDeDadosService.CriarBancoETabela();
 
-       // while (!stoppingToken.IsCancellationRequested)
-        //{
-            _logger.LogInformation("Worker iniciado às: {time}", DateTimeOffset.Now);
+        //Log de inicialização do Worker
+        _logger.LogInformation("Worker iniciado às: {time}", DateTimeOffset.Now);
 
-            await IBGEService.ConsultarIBGE(_ibgeRepository);
-            await ClimatempoService.ConsultarClimatempo(_climaRepository);
+        //Consultas nas APIs
+        await IBGEService.ConsultarIBGE(_ibgeRepository);
+        await ClimatempoService.ConsultarClimatempo(_climaRepository);
 
-            _logger.LogInformation("Execução finalizada.");
-            _logger.LogInformation("Worker finalizado às: {time}", DateTimeOffset.Now);
-
-            //await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
-        //}
+        //Logs de finalização
+        _logger.LogInformation("Execução finalizada.");
+        _logger.LogInformation("Worker finalizado às: {time}", DateTimeOffset.Now);
     }
 }
 
