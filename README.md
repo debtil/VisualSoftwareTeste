@@ -61,4 +61,4 @@ Escolhi ele pois permite a criação isolada dos Http Clients, o que facilita um
 Escolhi o Repository pois assim o código que manipula os dados fica separado do restante da lógica de negócio, facilitando a compreensão do fluxo da aplicação. Deste modo também facilita em futuras alterações e testes do código.
 
 ## Vídeo explicativo:
-O vídeo onde explico o código desenvolvido pode ser encontrado no link a seguir: 
+O vídeo onde explico o código desenvolvido pode ser encontrado no link a seguir: https://drive.google.com/file/d/1c2z0Ge1jczfTwo0tyW8CagN1XQ47c3YL/view?usp=sharing
