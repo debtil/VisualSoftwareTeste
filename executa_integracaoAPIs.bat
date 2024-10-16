@@ -18,7 +18,7 @@ taskkill /pid %DotnetPID% /f
 
 echo Execução do projeto finalizada com sucesso.
 
-REM Aguardar um tempo máximo para a janela permanecer aberta (ex: 5 segundos)
+REM Aguardar um tempo máximo para a janela permanecer aberta
 echo A janela irá fechar em 30 segundos...
 echo Os logs da execução ficarão salvos na pasta /logs do projeto.
 timeout /t 30 /nobreak >nul
